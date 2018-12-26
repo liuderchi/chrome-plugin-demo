@@ -91,11 +91,15 @@ function openUrlNewTab(url) {
   chrome.tabs.create({ url: url });
 }
 
+// const favorites = [
+//    x
+// ]
+
 // omnibox 演示
 chrome.omnibox.onInputChanged.addListener((text, suggest) => {
   console.log('inputChanged: ' + text);
   if (!text) return;
-  if (text == '美女') {
+  if (/^gh/.test(text)) {
     suggest([
       { content: '中国' + text, description: '你要找“中国美女”吗？' },
       { content: '日本' + text, description: '你要找“日本美女”吗？' },
