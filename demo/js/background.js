@@ -1,51 +1,69 @@
-// const favorites = [
-//    x
-// ]
+// TODO extract to json
+const FAVORITE_SITES = {
+  GH: [
+    {
+      name: 'liuderchi/ide-css',
+      // TODO tags
+      url: 'https://github.com/liuderchi/ide-css',
+    },
+    {
+      name: 'liuderchi/ide-html',
+      url: 'https://github.com/liuderchi/ide-html',
+    },
+    {
+      name: 'liuderchi/ide-yaml',
+      url: 'https://github.com/liuderchi/ide-yaml',
+    },
+  ],
+};
 
-// omnibox 演示
-chrome.omnibox.onInputChanged.addListener((text, suggest) => {
-  console.log('inputChanged: ' + text);
-  if (!text) return;
-  if (/^gh/.test(text)) {
-    suggest([
-      { content: '中国' + text, description: '你要找“中国美女”吗？' },
-      { content: '日本' + text, description: '你要找“日本美女”吗？' },
-      { content: '泰国' + text, description: '你要找“泰国美女或人妖”吗？' },
-      { content: '韩国' + text, description: '你要找“韩国美女”吗？' },
-    ]);
-  } else if (text == '微博') {
-    suggest([
-      { content: '新浪' + text, description: '新浪' + text },
-      { content: '腾讯' + text, description: '腾讯' + text },
-      { content: '搜狐' + text, description: '搜索' + text },
-    ]);
-  } else {
-    suggest([
-      { content: '百度搜索 ' + text, description: '百度搜索 ' + text },
-      { content: '谷歌搜索 ' + text, description: '谷歌搜索 ' + text },
-    ]);
+const getCurrentTabId = callback => {
+  chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
+    if (callback) callback(tabs.length ? tabs[0].id : null);
+  });
+};
+const openUrlCurrentTab = url => {
+  getCurrentTabId(tabId => {
+    chrome.tabs.update(tabId, { url });
+  });
+};
+const openUrlNewTab = url => {
+  chrome.tabs.create({ url });
+};
+
+const mapSiteToSuggestion = (site) /* :{name: string, url: string} */ => ({
+  content: site.url,
+  description: `🐙 ${site.name} - ${site.url}`,
+});
+const getGitHubSearchSuggestion = (keyword) /* :string */ => ({
+  content: `https://github.com/search?q=${keyword}&ref=opensearch`,
+  description: `🔎 Search '${keyword}' in GitHub`,
+});
+
+// add listener to omnibox
+chrome.omnibox.onInputChanged.addListener((inputText, suggest) => {
+  console.log('inputChanged: ' + inputText);
+  if (!inputText) return;
+  if (/^gh/i.test(inputText)) {
+    const matchRes = inputText.match(/^gh\W+([\w_-]+)/);
+    if (matchRes !== null) {
+      const keyword = matchRes[1];
+      const filteredSites = FAVORITE_SITES.GH.filter(
+        site => site.name.indexOf(keyword) > -1,
+      );
+      suggest(
+        filteredSites
+          .map(mapSiteToSuggestion)
+          .concat(getGitHubSearchSuggestion(keyword)),
+      );
+    }
+  } else if (/^b/i.test(inputText)) {
+    // TODO search in chrome bookmarks
   }
 });
+chrome.omnibox.onInputEntered.addListener(inputText => {
+  console.log('inputEntered: ' + inputText);
+  if (!inputText) return;
 
-// 当用户接收关键字建议时触发
-chrome.omnibox.onInputEntered.addListener(text => {
-  console.log('inputEntered: ' + text);
-  if (!text) return;
-  var href = '';
-  if (text.endsWith('美女'))
-    href =
-      'http://image.baidu.com/search/index?tn=baiduimage&ie=utf-8&word=' + text;
-  else if (text.startsWith('百度搜索'))
-    href =
-      'https://www.baidu.com/s?ie=UTF-8&wd=' + text.replace('百度搜索 ', '');
-  else if (text.startsWith('谷歌搜索'))
-    href =
-      'https://www.google.com.tw/search?q=' + text.replace('谷歌搜索 ', '');
-  else href = 'https://www.baidu.com/s?ie=UTF-8&wd=' + text;
-  openUrlCurrentTab(href);
+  openUrlCurrentTab(inputText);
 });
-
-// 预留一个方法给popup调用
-function testBackground() {
-  alert('你好，我是background！');
-}
