@@ -1,19 +1,26 @@
+import path from 'path';
 import copy from 'rollup-plugin-copy';
+
+const SOURCE_PATH = 'src';
+const BUILD_PATH = 'dist';
 
 export default {
   input: ['src/index.js'],
-  output: [
-    // ES module version, for modern browsers
-    {
-      dir: 'public',
-      format: 'es',
-      sourcemap: true,
-    },
-  ],
+  output: {
+    file: path.join(BUILD_PATH, 'bundle.js'),
+    format: 'cjs',
+    sourcemap: true,
+  },
   plugins: [
     copy({
-      'src/static/img/icon.png': 'public/img/icon.png',
-      'src/static/manifest.json': 'public/manifest.json',
+      [path.join(SOURCE_PATH, 'images', 'icon.png')]: path.join(
+        BUILD_PATH,
+        'img/icon.png',
+      ),
+      [path.join(SOURCE_PATH, 'manifest.json')]: path.join(
+        BUILD_PATH,
+        'manifest.json',
+      ),
     }),
   ],
 };

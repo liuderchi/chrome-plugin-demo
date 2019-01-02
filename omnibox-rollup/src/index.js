@@ -25,10 +25,10 @@ const getGitHubSearchSuggestion = (keyword) /* :string */ => ({
 
 // add listener to omnibox
 chrome.omnibox.onInputChanged.addListener((inputText, suggest) => {
-  console.log('inputChangeddddd: ' + inputText);
+  console.log(`inputChanged: ${inputText}`);
   if (!inputText) return;
   if (/^gh/i.test(inputText)) {
-    const matchRes = inputText.match(/^gh\W+([\w_-]+)/);
+    const matchRes = inputText.match(/^gh\W+(.+)/);
     if (matchRes !== null) {
       const keyword = matchRes[1];
       const filteredSites = FAVORITE_SITES.GH.filter(
@@ -45,7 +45,7 @@ chrome.omnibox.onInputChanged.addListener((inputText, suggest) => {
   }
 });
 chrome.omnibox.onInputEntered.addListener(inputText => {
-  console.log('inputEntered: ' + inputText);
+  console.log(`inputEntered: ${inputText}`);
   if (!inputText) return;
 
   openUrlCurrentTab(inputText);
