@@ -1,0 +1,14 @@
+{
+  "name": "omnibox-rollup",
+  "version": "1.0.0",
+  "description": "Simple Rollup Boilerplate for Chrome Extension Omnibox",
+  "scripts": {
+    "build": "rollup -c",
+    "watch": "rollup -c -w"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "rollup": "^1.0.0",
+    "rollup-plugin-copy": "^0.2.3"
+  }
+}
